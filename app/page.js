@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Stack,
@@ -14,13 +14,9 @@ import {
   collection,
   addDoc,
   doc,
-  getDocs,
-  query,
-  querySnapshot,
-  setDoc,
   deleteDoc,
-  getDoc,
   onSnapshot,
+  query,
 } from "firebase/firestore";
 
 const style = {
@@ -39,17 +35,13 @@ const style = {
 };
 
 export default function Home() {
-  const [inventory, setInventory] = useState([
-    // {
-    //   name: "mackBook",
-    //   quantity: "50",
-    // },
-  ]);
+  const [inventory, setInventory] = useState([]);
   const [open, setOpen] = useState(false);
   const [newItem, setNewItem] = useState({
     name: "",
     quantity: "",
   });
+  const [searchText, setSearchText] = useState("");
 
   //! Add item to database
   const addItem = async (item) => {
@@ -74,16 +66,22 @@ export default function Home() {
       });
       setInventory(inventoryArr);
     });
+
+    return () => unsubscribe();
   }, []);
 
   //! Delete item from database
-
   const removeItem = async (id) => {
     await deleteDoc(doc(firestore, "inventory", id));
   };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  //! Filter items based on search text
+  const filteredInventory = inventory.filter((item) =>
+    item.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <Box
@@ -95,54 +93,68 @@ export default function Home() {
       alignItems={"center"}
       gap={2}
     >
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Add Item
-          </Typography>
-          <Stack width="100%" direction={"row"} spacing={2}>
-            <TextField
-              id="outlined-basic"
-              label="Item"
-              variant="outlined"
-              fullWidth
-              value={newItem.name}
-              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-            />
+      <Box>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Add Item
+            </Typography>
+            <Stack width="100%" direction={"row"} spacing={2}>
+              <TextField
+                id="outlined-basic"
+                label="Item"
+                variant="outlined"
+                fullWidth
+                value={newItem.name}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, name: e.target.value })
+                }
+              />
 
-            <TextField
-              type="number"
-              id="outlined-basic"
-              label="Quantity"
-              variant="outlined"
-              fullWidth
-              value={newItem.quantity}
-              onChange={(e) =>
-                setNewItem({ ...newItem, quantity: e.target.value })
-              }
-            />
+              <TextField
+                type="number"
+                id="outlined-basic"
+                label="Quantity"
+                variant="outlined"
+                fullWidth
+                value={newItem.quantity}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, quantity: e.target.value })
+                }
+              />
 
-            <Button
-              variant="outlined"
-              onClick={() => {
-                addItem(newItem);
-                setNewItem({ name: "", quantity: "" });
-                handleClose();
-              }}
-            >
-              Add
-            </Button>
-          </Stack>
-        </Box>
-      </Modal>
-      <Button variant="contained" onClick={handleOpen}>
-        Add New Item
-      </Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  addItem(newItem);
+                  setNewItem({ name: "", quantity: "" });
+                  handleClose();
+                }}
+              >
+                Add
+              </Button>
+            </Stack>
+          </Box>
+        </Modal>
+        <Button variant="contained" onClick={handleOpen}>
+          Add New Item
+        </Button>
+      </Box>
+      <TextField
+        sx={{
+          width: "800px",
+        }}
+        label="Search Items"
+        id="fullWidth"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        focused
+      />
       <Box border={"1px solid #333"}>
         <Box
           width="800px"
@@ -163,7 +175,7 @@ export default function Home() {
           overflow={"auto"}
           padding={"20px"}
         >
-          {inventory.map((item, id) => (
+          {filteredInventory.map((item, id) => (
             <Box
               key={id}
               width="100%"
