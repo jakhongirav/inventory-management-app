@@ -8,6 +8,7 @@ import {
   Button,
   Modal,
   TextField,
+  Container,
 } from "@mui/material";
 import { firestore } from "./firebase";
 import {
@@ -18,21 +19,6 @@ import {
   onSnapshot,
   query,
 } from "firebase/firestore";
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "white",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-  display: "flex",
-  flexDirection: "column",
-  gap: 3,
-};
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
@@ -84,121 +70,89 @@ export default function Home() {
   );
 
   return (
-    <Box
-      width="100vw"
-      height="100vh"
-      display={"flex"}
-      justifyContent={"center"}
-      flexDirection={"column"}
-      alignItems={"center"}
-      gap={2}
-    >
-      <Box>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Add Item
-            </Typography>
-            <Stack width="100%" direction={"row"} spacing={2}>
-              <TextField
-                id="outlined-basic"
-                label="Item"
-                variant="outlined"
-                fullWidth
-                value={newItem.name}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, name: e.target.value })
-                }
-              />
+    <main>
+      <Container>
+        <Box>
+          <Box>
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box>
+                <Typography id="modal-modal-title">Add Item</Typography>
+                <Stack>
+                  <TextField
+                    id="outlined-basic"
+                    label="Item"
+                    variant="outlined"
+                    fullWidth
+                    value={newItem.name}
+                    onChange={(e) =>
+                      setNewItem({ ...newItem, name: e.target.value })
+                    }
+                  />
 
-              <TextField
-                type="number"
-                id="outlined-basic"
-                label="Quantity"
-                variant="outlined"
-                fullWidth
-                value={newItem.quantity}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, quantity: e.target.value })
-                }
-              />
+                  <TextField
+                    type="number"
+                    id="outlined-basic"
+                    label="Quantity"
+                    variant="outlined"
+                    fullWidth
+                    value={newItem.quantity}
+                    onChange={(e) =>
+                      setNewItem({ ...newItem, quantity: e.target.value })
+                    }
+                  />
 
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  addItem(newItem);
-                  setNewItem({ name: "", quantity: "" });
-                  handleClose();
-                }}
-              >
-                Add
-              </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      addItem(newItem);
+                      setNewItem({ name: "", quantity: "" });
+                      handleClose();
+                    }}
+                  >
+                    Add
+                  </Button>
+                </Stack>
+              </Box>
+            </Modal>
+            <Button variant="contained" onClick={handleOpen}>
+              Add New Item
+            </Button>
+          </Box>
+          <TextField
+            label="Search Items"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            focused
+          />
+          <Box border={"1px solid #333"}>
+            <Box>
+              <Typography>Inventory Items</Typography>
+            </Box>
+            <Stack>
+              {filteredInventory.map((item, id) => (
+                <Box key={id}>
+                  <Typography>
+                    {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                  </Typography>
+                  <Typography>Quantity: {item.quantity}</Typography>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => removeItem(item.id)}
+                  >
+                    Remove
+                  </Button>
+                </Box>
+              ))}
             </Stack>
           </Box>
-        </Modal>
-        <Button variant="contained" onClick={handleOpen}>
-          Add New Item
-        </Button>
-      </Box>
-      <TextField
-        sx={{
-          width: "800px",
-        }}
-        label="Search Items"
-        id="fullWidth"
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        focused
-      />
-      <Box border={"1px solid #333"}>
-        <Box
-          width="800px"
-          height="100px"
-          bgcolor={"#ADD8E6"}
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
-        >
-          <Typography variant={"h2"} color={"#333"} textAlign={"center"}>
-            Inventory Items
-          </Typography>
         </Box>
-        <Stack
-          width="800px"
-          minHeight="700px"
-          spacing={2}
-          overflow={"auto"}
-          padding={"20px"}
-        >
-          {filteredInventory.map((item, id) => (
-            <Box
-              key={id}
-              width="100%"
-              minHeight="150px"
-              display={"flex"}
-              justifyContent={"space-between"}
-              alignItems={"center"}
-              bgcolor={"#f0f0f0"}
-              paddingX={5}
-            >
-              <Typography variant={"h3"} color={"#333"} textAlign={"center"}>
-                {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-              </Typography>
-              <Typography variant={"h3"} color={"#333"} textAlign={"center"}>
-                Quantity: {item.quantity}
-              </Typography>
-              <Button variant="contained" onClick={() => removeItem(item.id)}>
-                Remove
-              </Button>
-            </Box>
-          ))}
-        </Stack>
-      </Box>
-    </Box>
+      </Container>
+    </main>
   );
 }
