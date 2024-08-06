@@ -6,6 +6,11 @@
 
 body {
   font-family: "Montserrat", sans-serif;
+  height: 100vh;
+}
+
+main {
+  background-color: #0d1b2a;
 }
 
 a {

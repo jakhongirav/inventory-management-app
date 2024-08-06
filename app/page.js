@@ -112,14 +112,29 @@ export default function Home() {
   const handleClose = () => setOpen(false);
 
   return (
-    <main
-      style={{
-        backgroundColor: "#0d1b2a",
-        height: "100vh",
-      }}
-    >
+    <main>
       <Container>
         <Box bgcolor={"#1b263b"}>
+          {/* Search Field */}
+          <TextField
+            label="Search Items"
+            value={searchText}
+            placeholder="Item..."
+            onChange={(e) => setSearchText(e.target.value)}
+            focused
+            fullWidth
+            sx={{
+              my: 2,
+              "& .MuiInputBase-input": {
+                color: "#fefae0",
+              },
+              "&::placeholder": {
+                color: "#fefae0",
+              },
+            }}
+          />
+
+          {/* Adding new Item */}
           <Box>
             <Modal
               open={open}
@@ -127,11 +142,24 @@ export default function Home() {
               aria-labelledby="modal-modal-title"
               aria-describedby="modal-modal-description"
             >
-              <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 1 }}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 400,
+                  bgcolor: "#cad2c5",
+                  border: "2px solid #000",
+                  boxShadow: 24,
+                  p: 4,
+                }}
+              >
                 <Typography
                   id="modal-modal-title"
                   variant="h6"
-                  color={"#e0e1dd"}
+                  fontWeight={600}
+                  color={"#b56576"}
                 >
                   Add Item
                 </Typography>
@@ -166,24 +194,19 @@ export default function Home() {
                       setNewItem({ name: "", quantity: "" });
                       handleClose();
                     }}
+                    sx={{
+                      fontWeight: "600",
+                    }}
                   >
                     Add
                   </Button>
                 </Stack>
               </Box>
             </Modal>
-            <Button variant="contained" onClick={handleOpen}>
+            <Button variant="contained" fullWidth onClick={handleOpen}>
               Add New Item
             </Button>
           </Box>
-          <TextField
-            label="Search Items"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            focused
-            fullWidth
-            sx={{ mt: 2 }}
-          />
           {/* Cards */}
           <Box border={"1px solid #333"} p={"20px"} mt={4}>
             <Box
@@ -192,7 +215,9 @@ export default function Home() {
               p={"20px"}
               mb={"20px"}
             >
-              <Typography color={"#e0e1dd"}>Inventory Items</Typography>
+              <Typography variant="h5" color={"#e0e1dd"}>
+                Inventory Items
+              </Typography>
             </Box>
             <Stack
               sx={

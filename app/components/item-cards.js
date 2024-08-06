@@ -5,20 +5,16 @@ import {
   CardMedia,
   Button,
   Typography,
+  Box,
 } from "@mui/material";
 
 const InventoryItem = ({ item, onIncrement, onDecrement, onDelete }) => (
-  <Card
-    elevation={12}
-    variant="outlined"
-    sx={{ maxWidth: 345, bgcolor: "#778da9" }}
-  >
-    <CardMedia sx={{ height: 140 }} image="/" title={item.name} />
+  <Box variant="outlined" sx={{ maxWidth: 345, bgcolor: "#778da9" }}>
     <CardContent>
-      <Typography gutterBottom variant="h5" component="div" color="#e0e1dd">
+      <Typography gutterBottom variant="h4" component="div" color="#eddea4">
         {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
       </Typography>
-      <Typography variant="body2" color="#e0e1dd">
+      <Typography variant="h6" color="#d8e2dc">
         Quantity: {item.quantity}
       </Typography>
     </CardContent>
@@ -48,7 +44,7 @@ const InventoryItem = ({ item, onIncrement, onDecrement, onDelete }) => (
         Delete
       </Button>
     </CardActions>
-  </Card>
+  </Box>
 );
 
 export default InventoryItem;
