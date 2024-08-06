@@ -113,8 +113,17 @@ export default function Home() {
 
   return (
     <main>
-      <Container>
-        <Box bgcolor={"#1b263b"}>
+      <Container
+        sx={{
+          height: "100vh",
+        }}
+      >
+        <Box
+          bgcolor={"#1b263b"}
+          sx={{
+            height: "100vh",
+          }}
+        >
           {/* Search Field */}
           <TextField
             label="Search Items"
