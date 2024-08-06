@@ -25,7 +25,10 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore";
-import { Auth } from "./components/auth";
+import { Loading } from "./components/loading";
+import InventoryItem from "./components/item-cards";
+// import { Auth } from "./components/auth";
+// import { setLazyProp } from "next/dist/server/api-utils";
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
@@ -35,6 +38,7 @@ export default function Home() {
     quantity: "",
   });
   const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   //! Add item to database
   const addItem = async () => {
@@ -67,8 +71,10 @@ export default function Home() {
       });
       setInventory(inventoryArr);
     });
-
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      setIsLoading(false);
+    };
   }, []);
 
   //! Delete item from database
@@ -81,29 +87,21 @@ export default function Home() {
   };
 
   //! Arithmetic operations for items quantity
-  const incrementItem = async (id) => {
+  const updateItemQuantity = async (id, increment = true) => {
     const docRef = doc(firestore, "inventory", id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const currentQuantity = docSnap.data().quantity;
-      const updatedQuantity = Number(currentQuantity);
-      await updateDoc(docRef, { quantity: updatedQuantity + 1 });
-      console.log("Quantity updated to:", updatedQuantity);
+      const currentQuantity = Number(docSnap.data().quantity);
+      const updatedQuantity = increment
+        ? currentQuantity + 1
+        : currentQuantity - 1;
+      await updateDoc(docRef, { quantity: updatedQuantity });
     }
   };
 
-  const decrementItem = async (id) => {
-    const docRef = doc(firestore, "inventory", id);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const currentQuantity = docSnap.data().quantity;
-      const updatedQuantity = Number(currentQuantity);
-      await updateDoc(docRef, { quantity: updatedQuantity - 1 });
-      console.log("Quantity updated to:", updatedQuantity);
-    }
-  };
+  const incrementItem = (id) => updateItemQuantity(id, true);
+  const decrementItem = (id) => updateItemQuantity(id, false);
 
   //! Filter items based on search text
   const filteredInventory = inventory.filter((item) =>
@@ -197,66 +195,34 @@ export default function Home() {
               <Typography color={"#e0e1dd"}>Inventory Items</Typography>
             </Box>
             <Stack
-              sx={{
-                display: "grid",
-                gap: "20px",
-                gridTemplateColumns: "1fr 1fr 1fr",
-                gridTemplateRows: "auto",
-              }}
+              sx={
+                !isLoading
+                  ? {
+                      display: "grid",
+                      gap: "20px",
+                      gridTemplateColumns: "1fr 1fr 1fr",
+                      gridTemplateRows: "auto",
+                    }
+                  : {
+                      minHeight: 300,
+                      display: "flex",
+                      justifyContent: "center",
+                    }
+              }
             >
-              {filteredInventory.map((item) => (
-                <Card
-                  key={item.id}
-                  elevation={12}
-                  variant="outlined"
-                  sx={{ maxWidth: 345, bgcolor: "#778da9" }}
-                >
-                  <CardMedia
-                    sx={{ height: 140 }}
-                    image="/"
-                    title="jakhongirav"
+              {isLoading ? (
+                <Loading />
+              ) : (
+                filteredInventory.map((item) => (
+                  <InventoryItem
+                    key={item.id}
+                    item={item}
+                    onIncrement={incrementItem}
+                    onDecrement={decrementItem}
+                    onDelete={removeItem}
                   />
-                  <CardContent>
-                    <Typography
-                      gutterBottom
-                      variant="h5"
-                      component="div"
-                      color="#e0e1dd"
-                    >
-                      {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                    </Typography>
-                    <Typography variant="body2" color="#e0e1dd">
-                      Quantity: {item.quantity}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      color="secondary"
-                      variant="contained"
-                      size="small"
-                      onClick={() => decrementItem(item.id)}
-                    >
-                      -
-                    </Button>
-                    <Button
-                      color="secondary"
-                      variant="contained"
-                      size="small"
-                      onClick={() => incrementItem(item.id)}
-                    >
-                      +
-                    </Button>
-                    <Button
-                      color="error"
-                      variant="outlined"
-                      size="small"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      Delete
-                    </Button>
-                  </CardActions>
-                </Card>
-              ))}
+                ))
+              )}
             </Stack>
           </Box>
         </Box>
